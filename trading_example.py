@@ -25,7 +25,7 @@ if __name__ == "__main__":
         second = now.second
         if ((minute % 15 == 0) & (second > 30)):
             if notyet_traded:
-                long_amt = binance_sm.volume_momentum({"symbol" : SYMBOL, "interval" : INTERVAL}, window=20)
+                long_amt = binance_sm.volume_momentum({"symbol" : SYMBOL, "interval" : INTERVAL}, window=20) * 0.99
                 if (long_amt > 0):
                     timestamp = int(time.time() * 1000.0)
                     order_dict = {"symbol" : SYMBOL, "side" : BUY, "type" : ORDER_TYPE, "quantity" : long_amt, "timestamp" : timestamp}
