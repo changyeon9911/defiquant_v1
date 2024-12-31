@@ -20,8 +20,10 @@ if __name__ == "__main__":
     notyet_traded = True
 
     while True:
-        minute = datetime.now().minute
-        if (minute % 15 == 1):
+        now = datetime.now()
+        minute = now.minute
+        second = now.second
+        if ((minute % 15 == 0) & (second > 30)):
             if notyet_traded:
                 long_amt = binance_sm.volume_momentum({"symbol" : SYMBOL, "interval" : INTERVAL}, window=20)
                 if (long_amt > 0):
@@ -34,7 +36,7 @@ if __name__ == "__main__":
                     print("SKIPPED", datetime.now())
                 notyet_traded = False
 
-        elif (minute % 15 == 14):
+        elif ((minute % 15 == 14) & (second > 30)):
             if not notyet_traded:
                 if (long_amt > 0):
                     timestamp = int(time.time() * 1000.0)
