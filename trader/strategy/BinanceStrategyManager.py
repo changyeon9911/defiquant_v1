@@ -14,7 +14,7 @@ class BinanceStrategyManager(StrategyManager):
         free_usdt = float([balance for balance in self.backtest_manager.get_userdata().json().get("balances") if (balance["asset"] == "USDT")][0]["free"])
         free_usdt_without_commission = round(free_usdt/(1+commission_rate) - 0.00005, 4)
         free_base_without_commission = free_usdt_without_commission/float(self.backtest_manager.interface.get_current_price({"symbol" : base}).json().get("price"))
-        return round(min(free_base_without_commission, desired_amount) - 0.00005, 4)
+        return round(min(free_base_without_commission, desired_amount) - 0.005, 2)
         
         
     def bollinger_momentum(self, params_dict : dict):
