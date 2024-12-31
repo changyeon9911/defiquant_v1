@@ -1,0 +1,8 @@
+.env
+venv/
+credentials/
+notebooks
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
