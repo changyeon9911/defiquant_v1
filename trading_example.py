@@ -1,3 +1,4 @@
+import sys
 import time
 import warnings
 from datetime import datetime
@@ -10,7 +11,7 @@ SELL = "SELL"
 ORDER_TYPE = "MARKET"
 
 if __name__ == "__main__":
-
+    
     warnings.filterwarnings(action='ignore')
 
     binance_om = BinanceOrderManager()
@@ -22,29 +23,31 @@ if __name__ == "__main__":
     while True:
         now = datetime.now()
         minute = now.minute
-        second = now.second
-        if ((minute % 15 == 0) & (second > 30)):
+        if (minute % 15 == 0):
             if notyet_traded:
                 long_amt = binance_sm.volume_momentum({"symbol" : SYMBOL, "interval" : INTERVAL}, window=20)
                 if (long_amt > 0):
                     timestamp = int(time.time() * 1000.0)
                     order_dict = {"symbol" : SYMBOL, "side" : BUY, "type" : ORDER_TYPE, "quantity" : long_amt, "timestamp" : timestamp}
                     binance_om.retrieve_orders(order_dict)
-                    binance_om.excute_orders()
-                    print("PROCESSED", datetime.now())
+                    order_response = eval(binance_om.excute_orders())
+                    try:
+                        long_amt = round(eval(order_response["fills"][0]["qty"] + " - " + order_response["fills"][0]["commission"]) - 0.00005, 4)
+                        print("PROCESSED", datetime.now())
+                    except:
+                        long_amt = 0
+                        print("FAILED TO BUY", datetime.now())
+                        print("DETAILS : ", order_response)
                 else:
                     print("SKIPPED", datetime.now())
                 notyet_traded = False
-
-        elif ((minute % 15 == 14) & (second > 30)):
+        elif (minute % 15 == 14):
             if not notyet_traded:
                 if (long_amt > 0):
-                    long_amt = long_amt * 0.99
                     timestamp = int(time.time() * 1000.0)
                     order_dict = {"symbol" : SYMBOL, "side" : SELL, "type" : ORDER_TYPE, "quantity" : long_amt, "timestamp" : timestamp}
                     binance_om.retrieve_orders(order_dict)
-                    binance_om.excute_orders()
+                    order_response = binance_om.excute_orders()
+                    print("SELL : ", order_response)
                 notyet_traded = True
-
-
             
