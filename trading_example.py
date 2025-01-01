@@ -4,7 +4,7 @@ import warnings
 from datetime import datetime
 from trader import BinanceStrategyManager, BinanceOrderManager
 
-SYMBOL = "ETHUSDT"
+SYMBOL = "SOLUSDT"
 INTERVAL = "15m"
 BUY = "BUY"
 SELL = "SELL"
