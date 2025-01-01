@@ -1,10 +1,10 @@
-import sys
 import time
 import warnings
+from pytz import timezone
 from datetime import datetime
 from trader import BinanceStrategyManager, BinanceOrderManager
 
-SYMBOL = "SOLUSDT"
+SYMBOL = "ETHUSDT"
 INTERVAL = "15m"
 BUY = "BUY"
 SELL = "SELL"
@@ -32,14 +32,17 @@ if __name__ == "__main__":
                     binance_om.retrieve_orders(order_dict)
                     order_response = eval(binance_om.excute_orders())
                     try:
-                        long_amt = round(eval(order_response["fills"][0]["qty"] + " - " + order_response["fills"][0]["commission"]) - 0.00005, 4)
-                        print("PROCESSED", datetime.now())
+                        price = order_response["fills"][0]["price"]
+                        qty = order_response["fills"][0]["qty"]
+                        commission = order_response["fills"][0]["commission"]
+                        long_amt = round(eval(f'{qty} - ({commission} / {price})') - 0.00005, 4)
+                        print("PROCESSED", datetime.now().astimezone(timezone("Asia/Seoul")))
                     except:
                         long_amt = 0
-                        print("FAILED TO BUY", datetime.now())
+                        print("FAILED TO BUY", datetime.now().astimezone(timezone("Asia/Seoul")))
                         print("DETAILS : ", order_response)
                 else:
-                    print("SKIPPED", datetime.now())
+                    print("SKIPPED", datetime.now().astimezone(timezone("Asia/Seoul")))
                 notyet_traded = False
         elif (minute % 15 == 14):
             if not notyet_traded:
