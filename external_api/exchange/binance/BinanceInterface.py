@@ -12,6 +12,7 @@ class BinanceInterface:
         - Abstraction for Binance API
             - Authentication
             - Connection
+            - Information Exchange
             - Trading
             - Research
             - UserData
@@ -90,6 +91,20 @@ class BinanceInterface:
             return response
         except Exception as e:
             raise e
+
+    ########## Information Exchange ############
+    def exchange_info(self, parameter_dict : dict):
+
+        #endpoint
+        url = self.API_URL + "/api/v3/exchangeInfo"
+
+        #call API
+        try:
+            response = get(url=url, headers=self.HEADER, params=parameter_dict)
+            return response
+        except Exception as e:
+            raise e
+        
 
     ########## Research ############
     def get_statistics_24hr(self, parameter_dict : dict):

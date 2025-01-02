@@ -15,8 +15,11 @@ class BinanceStrategyManager(StrategyManager):
         free_usdt_if_commission = round(free_usdt/(1+commission_rate) - 0.00005, 4)
         free_base_if_commission = free_usdt_if_commission/float(self.backtest_manager.interface.get_current_price({"symbol" : base}).json().get("price"))
         return round(min(free_base_if_commission, desired_amount) * (1+commission_rate) - 0.00005, 4)
-        
-        
+
+#    Yet on work        
+#    def apply_filters(self, params_dict : dict):
+#        return self.backtest_manager.interface.exchange_info(params_dict)
+
     def bollinger_momentum(self, params_dict : dict):
 
         def strat_bollinger_momentum(candlestick_df : pd.DataFrame, window=10):
