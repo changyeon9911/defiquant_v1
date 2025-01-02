@@ -12,9 +12,9 @@ class BinanceStrategyManager(StrategyManager):
     def upto_balance(self, desired_amount, base, commission_rate=0.001):
         
         free_usdt = float([balance for balance in self.backtest_manager.get_userdata().json().get("balances") if (balance["asset"] == "USDT")][0]["free"])
-        free_usdt_if_commission = round(free_usdt/(1+commission_rate) - 0.00005, 4)
+        free_usdt_if_commission = free_usdt/(1+commission_rate)
         free_base_if_commission = free_usdt_if_commission/float(self.backtest_manager.interface.get_current_price({"symbol" : base}).json().get("price"))
-        return round(min(free_base_if_commission, desired_amount) * (1+commission_rate) - 0.00005, 4)
+        return min(free_base_if_commission, desired_amount) * (1+commission_rate)
 
 #    Yet on work        
 #    def apply_filters(self, params_dict : dict):

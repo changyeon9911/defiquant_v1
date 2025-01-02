@@ -2,7 +2,7 @@ import time
 import warnings
 from pytz import timezone
 from datetime import datetime
-from trader import BinanceStrategyManager, BinanceOrderManager
+from trader import BinanceStrategyManager, BinanceOrderManager, BinanceTradeFilter
 
 BASE = "ETH"
 QUOTE = "USDT"
@@ -18,16 +18,18 @@ if __name__ == "__main__":
 
     binance_om = BinanceOrderManager()
     binance_sm = BinanceStrategyManager()
+    binance_ft = BinanceTradeFilter()
 
     long_amt = 0
     notyet_traded = True
+    binance_ft.load_filters(SYMBOL)
 
     while True:
         now = datetime.now()
         minute = now.minute
         if (minute % 15 == 0):
             if notyet_traded:
-                long_amt = binance_sm.volume_momentum({"symbol" : SYMBOL, "interval" : INTERVAL}, window=20)
+                long_amt = binance_ft.apply_filters(binance_sm.volume_momentum({"symbol" : SYMBOL, "interval" : INTERVAL}, window=20))
                 if (long_amt > 0):
                     timestamp = int(time.time() * 1000.0)
                     order_dict = {"symbol" : SYMBOL, "side" : BUY, "type" : ORDER_TYPE, "quantity" : long_amt, "timestamp" : timestamp}
@@ -37,7 +39,7 @@ if __name__ == "__main__":
                         price = order_response["fills"][0]["price"]
                         qty = order_response["fills"][0]["qty"]
                         commission = order_response["fills"][0]["commission"]
-                        long_amt = round(eval(f'{qty} - ({commission} / {price})') - 0.00005, 4)
+                        long_amt = binance_ft.apply_filters(eval(f'{qty} - ({commission} / {price})'))
                         print("PROCESSED", datetime.now().astimezone(timezone("Asia/Seoul")))
                     except:
                         long_amt = 0

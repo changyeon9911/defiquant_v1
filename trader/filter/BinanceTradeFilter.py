@@ -22,7 +22,7 @@ class BinanceTradeFilter(TradeFilter):
         self.filters = exchange_info.json().get("symbols")[0]["filters"]
 
     def apply_filters(self, qty : float):
-        #applies for only LOT_SIZE & NOTIONAL
+        #do for LOT_SIZE
         try:
             lot_size_filter = [ft for ft in self.filters if ft["filterType"] == 'LOT_SIZE'][0]
             truncated_qty = min(max(qty, float(lot_size_filter["minQty"])), float(lot_size_filter["maxQty"]))
