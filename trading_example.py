@@ -25,7 +25,7 @@ if __name__ == "__main__":
     while True:
         now = datetime.now()
         minute = now.minute
-        if (minute % 15 == 2):
+        if (minute % 15 == 0):
             if notyet_traded:
                 long_amt = binance_sm.volume_momentum({"symbol" : SYMBOL, "interval" : INTERVAL}, window=20)
                 if (long_amt > 0):
