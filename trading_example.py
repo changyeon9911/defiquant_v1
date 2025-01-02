@@ -4,7 +4,9 @@ from pytz import timezone
 from datetime import datetime
 from trader import BinanceStrategyManager, BinanceOrderManager
 
-SYMBOL = "ETHUSDT"
+BASE = "SOL"
+QUOTE = "USDT"
+SYMBOL = f"{BASE}{QUOTE}"
 INTERVAL = "15m"
 BUY = "BUY"
 SELL = "SELL"
