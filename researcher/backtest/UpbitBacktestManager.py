@@ -44,29 +44,31 @@ class UpbitBacktestManager(BacktestManager):
         userdata = self.interface.get_userdata();
         return userdata
 
-    def get_candlestick(self):
+    def get_candlestick(self, interval=5, unit="minutes"):
         #datetime columns
-        candlestick_df = pd.DataFrame(self.interface.get_candlestick(self.params).json(), columns=self.CANDLESTICK_COLS)
-        candlestick_df["candle_date_time_utc"] = pd.to_datetime(candlestick_df["candle_date_time_utc"], unit='us', utc=True).dt.tz_convert("Asia/Seoul")
+        candlestick_df = pd.DataFrame(self.interface.get_candlestick(units=unit, parameter_dict=self.params, minutes_size=interval).json(), columns=self.CANDLESTICK_COLS)
+        candlestick_df["candle_date_time_utc"] = pd.to_datetime(candlestick_df["candle_date_time_utc"], utc=True).dt.tz_convert("Asia/Seoul")
+        candlestick_df.sort_values(by="candle_date_time_utc", inplace=True, ascending=True)
+        candlestick_df.reset_index(inplace=True)
 
         #numeric columns
         numeric_columns = [col for col in list(set(candlestick_df.columns) - set({"market", "candle_date_time_utc", "candle_date_time_kst", "unit"}))]
         candlestick_df[numeric_columns] = candlestick_df[numeric_columns].astype("float64")
-        candlestick_df["unit"] = candlestick_df["unit"].astype("int64")
-
+       
         return candlestick_df
     
-    def backtest(self, starting_krw, investment_df : pd.DataFrame, commission_rate=0.01):
-        investment_df["max_long_amt"] = 0
+    def backtest(self, starting_krw, investment_df : pd.DataFrame, commission_rate=0.001):
+        investment_df["Long Amount"] = 0
+        investment_df["marginal_pnl"] = 0
         investment_df["cumulative_pnl"] = 0
+        investment_df["commission"] = 0
         investment_df.loc[0, "cumulative_pnl"] = starting_krw
 
         for i in range(len(investment_df)-1):
-            investment_df.loc[i, "max_long_amt"] = (investment_df.loc[i, "cumulative_pnl"]/(1+commission_rate))/investment_df.loc[i, "opening_price"]
-            investment_df.loc[i, "Long Amount"] = min(investment_df.loc[i, "Long Amount"], investment_df.loc[i, "max_long_amt"])
-            investment_df.loc[i, "marginal pnl"] = investment_df.loc[i, "Long Amount"] * (investment_df.loc[i, "trade_price"] - investment_df.loc[i, "opening_price"])
-            investment_df.loc[i+1, "cumulative_pnl"] = investment_df.loc[i, "cumulative_pnl"] + investment_df.loc[i, "marginal pnl"]
-        
+            investment_df.loc[i+1, "Long Amount"] = investment_df.loc[i, "cumulative_pnl"] * investment_df.loc[i+1, "Long Ratio"]
+            investment_df.loc[i+1, "marginal_pnl"] = investment_df.loc[i+1, "Long Amount"] * ((investment_df.loc[i+1, "trade_price"] - investment_df.loc[i+1, "opening_price"])/investment_df.loc[i+1, "opening_price"])
+            investment_df.loc[i+1, "commission"] = commission_rate * investment_df.loc[i+1, "Long Amount"]
+            investment_df.loc[i+1, "cumulative_pnl"] = investment_df.loc[i, "cumulative_pnl"] + investment_df.loc[i+1, "marginal_pnl"] - investment_df.loc[i+1, "commission"]
         return investment_df
     
     def visualize_pnl(self, pnl_df: pd.DataFrame, color1="blue", color2="orange", test=False):
