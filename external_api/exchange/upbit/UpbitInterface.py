@@ -57,11 +57,14 @@ class UpbitInterface:
             raise e
     
     ########## Research ############
-    def get_candlestick(self, units, parameter_dict : dict):
+    def get_candlestick(self, units, parameter_dict : dict, minutes_size = None):
 
         #endpoint
-        url = self.API_URL + f"/v1/candles/{units}"
-
+        if minutes_size is None:
+            url = self.API_URL + f"/v1/candles/{units}"
+        else:
+            url = self.API_URL + f"/v1/candles/{units}/{minutes_size}"
+            
         #headers
         headers = {"accept": "application/json"}
 
