@@ -27,5 +27,5 @@ class BinanceOrderManager(OrderManager):
     def excute_orders(self):
         if (self.interface.test_connectivity()):
             response = self.interface.make_new_order(self.orders)
-            return response.content
+            return response
 

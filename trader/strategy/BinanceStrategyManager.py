@@ -1,5 +1,5 @@
 #lib_settings
-import pandas as pd
+import pandas as pd # type: ignore
 from researcher import BinanceBacktestManager
 from .StrategyManager import StrategyManager
 
