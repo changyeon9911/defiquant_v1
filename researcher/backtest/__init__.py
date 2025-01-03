@@ -1,1 +1,2 @@
 from .BinanceBacktestManager import BinanceBacktestManager
+from .UpbitBacktestManager import UpbitBacktestManager

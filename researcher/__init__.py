@@ -1,1 +1,1 @@
-from .backtest import BinanceBacktestManager
+from .backtest import BinanceBacktestManager, UpbitBacktestManager

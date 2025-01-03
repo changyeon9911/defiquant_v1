@@ -42,7 +42,7 @@ class BinanceStrategyManager(StrategyManager):
         def volume_momentum(candlestick_df : pd.DataFrame, window=window):
             investment_df = candlestick_df.copy()[["Kline open time", "Kline Close time", "Open price", "Close price", "Quote asset volume"]]
             investment_df["Previous Volume"] = investment_df["Quote asset volume"].shift(1)
-            investment_df["Long Amount"] = (investment_df["Previous Volume"] - investment_df["Previous Volume"].rolling(window).mean())/investment_df["Previous Volume"].rolling(10).mean()
+            investment_df["Long Amount"] = (investment_df["Previous Volume"] - investment_df["Previous Volume"].rolling(window).mean())/investment_df["Previous Volume"].rolling(window).mean()
             investment_df["Long Amount"] = investment_df["Long Amount"].fillna(0).clip(0)
             return investment_df
 

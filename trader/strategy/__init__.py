@@ -1,1 +1,2 @@
 from .BinanceStrategyManager import BinanceStrategyManager
+from .UpbitStrategyManager import UpbitStrategyManager
