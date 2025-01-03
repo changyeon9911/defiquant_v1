@@ -26,12 +26,19 @@ class BinanceTradeFilter(TradeFilter):
         try:
             lot_size_filter = [ft for ft in self.filters if ft["filterType"] == 'LOT_SIZE'][0]
             truncated_qty = min(max(qty, float(lot_size_filter["minQty"])), float(lot_size_filter["maxQty"]))
-            rounded_qty = (truncated_qty // float(lot_size_filter["stepSize"])) * float(lot_size_filter["stepSize"])
+            rounded_qty = int(truncated_qty // float(lot_size_filter["stepSize"])) * float(lot_size_filter["stepSize"])
             return rounded_qty
         except:
-            rounded_qty = qty
+            return None
+        #do for NOTIONAL
+        #try:
+        #    notional_filter = [ft for ft in self.filters if ft["filterType"] == 'NOTIONAL'][0]
+        #    print(notional_filter)
+        #    return rounded_qty
+        #except:
+        #    return None
 
 if __name__ == "__main__":
     filter = BinanceTradeFilter()
-    filter.load_filters("ETHUSDT")
-    filter.apply_filters(0.00015)
+    filter.load_filters("SOLUSDT")
+    filter.apply_filters(0.00015134791204)

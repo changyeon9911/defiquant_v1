@@ -1,13 +1,14 @@
 import time
 import warnings
-from pytz import timezone
+from pytz import timezone # type: ignore
 from datetime import datetime
 from trader import BinanceStrategyManager, BinanceOrderManager, BinanceTradeFilter
 
 BASE = "ETH"
 QUOTE = "USDT"
 SYMBOL = f"{BASE}{QUOTE}"
-INTERVAL = "15m"
+INTERVAL = "5m"
+INTERVAL_INT = 5
 BUY = "BUY"
 SELL = "SELL"
 ORDER_TYPE = "MARKET"
@@ -27,9 +28,9 @@ if __name__ == "__main__":
     while True:
         now = datetime.now()
         minute = now.minute
-        if (minute % 15 == 0):
+        if (minute % INTERVAL_INT == 0):
             if notyet_traded:
-                long_amt = binance_ft.apply_filters(binance_sm.volume_momentum({"symbol" : SYMBOL, "interval" : INTERVAL}, window=20))
+                long_amt = round(binance_ft.apply_filters(binance_sm.volume_momentum({"symbol" : SYMBOL, "interval" : INTERVAL}, window=40))-0.00005, 4)
                 if (long_amt > 0):
                     timestamp = int(time.time() * 1000.0)
                     order_dict = {"symbol" : SYMBOL, "side" : BUY, "type" : ORDER_TYPE, "quantity" : long_amt, "timestamp" : timestamp}
@@ -39,7 +40,7 @@ if __name__ == "__main__":
                         price = order_response["fills"][0]["price"]
                         qty = order_response["fills"][0]["qty"]
                         commission = order_response["fills"][0]["commission"]
-                        long_amt = binance_ft.apply_filters(eval(f'{qty} - ({commission} / {price})'))
+                        long_amt = round(binance_ft.apply_filters(float(eval(f'{qty} - ({commission} / {price})'))) - 0.00005, 4)
                         print("PROCESSED", datetime.now().astimezone(timezone("Asia/Seoul")))
                     except:
                         long_amt = 0
@@ -48,7 +49,7 @@ if __name__ == "__main__":
                 else:
                     print("SKIPPED", datetime.now().astimezone(timezone("Asia/Seoul")))
                 notyet_traded = False
-        elif (minute % 15 == 14):
+        elif (minute % INTERVAL_INT == INTERVAL_INT-1):
             if not notyet_traded:
                 if (long_amt > 0):
                     timestamp = int(time.time() * 1000.0)
