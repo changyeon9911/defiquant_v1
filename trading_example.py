@@ -22,6 +22,7 @@ if __name__ == "__main__":
     binance_ft = BinanceTradeFilter()
 
     long_amt = 0
+    sell_amt = 0
     notyet_traded = True
     binance_ft.load_filters(SYMBOL)
 
@@ -37,13 +38,15 @@ if __name__ == "__main__":
                     binance_om.retrieve_orders(order_dict)
                     order_response = eval(binance_om.excute_orders())
                     try:
-                        price = order_response["fills"][0]["price"]
-                        qty = order_response["fills"][0]["qty"]
-                        commission = order_response["fills"][0]["commission"]
-                        long_amt = round(binance_ft.apply_filters(float(eval(f'{qty} - ({commission} / {price})'))) - 0.00005, 4)
+                        #price = order_response["fills"][0]["price"]
+                        #qty = order_response["fills"][0]["qty"]
+                        #commission = order_response["fills"][0]["commission"]
+                        #long_amt = round(binance_ft.apply_filters(float(eval(f'{qty} - ({commission} / {price})'))) - 0.00005, 4)
+                        sell_amt = round(float([balance for balance in binance_sm.backtest_manager.get_userdata().json().get("balances") if (balance["asset"] == BASE)][0]["free"]) - 0.00005, 4)
                         print("PROCESSED", datetime.now().astimezone(timezone("Asia/Seoul")))
                     except:
                         long_amt = 0
+                        sell_amt = 0
                         print("FAILED TO BUY", datetime.now().astimezone(timezone("Asia/Seoul")))
                         print("DETAILS : ", order_response)
                 else:
@@ -53,9 +56,11 @@ if __name__ == "__main__":
             if not notyet_traded:
                 if (long_amt > 0):
                     timestamp = int(time.time() * 1000.0)
-                    order_dict = {"symbol" : SYMBOL, "side" : SELL, "type" : ORDER_TYPE, "quantity" : long_amt, "timestamp" : timestamp}
+                    order_dict = {"symbol" : SYMBOL, "side" : SELL, "type" : ORDER_TYPE, "quantity" : sell_amt, "timestamp" : timestamp}
                     binance_om.retrieve_orders(order_dict)
                     order_response = binance_om.excute_orders()
                     print("SELL : ", order_response)
                 notyet_traded = True
+                long_amt = 0
+                sell_amt = 0
             
