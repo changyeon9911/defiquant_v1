@@ -4,11 +4,11 @@ from pytz import timezone # type: ignore
 from datetime import datetime
 from trader import BinanceStrategyManager, BinanceOrderManager, BinanceTradeFilter
 
-BASE = "ETH"
+BASE = "DOGE"
 QUOTE = "USDT"
 SYMBOL = f"{BASE}{QUOTE}"
-INTERVAL = "5m"
-INTERVAL_INT = 5
+INTERVAL = "1d"
+INTERVAL_INT = 24
 BUY = "BUY"
 SELL = "SELL"
 ORDER_TYPE = "MARKET"
@@ -28,9 +28,8 @@ if __name__ == "__main__":
 
     while True:
         now = datetime.now()
-        minute = now.minute
-        second = now.second
-        if (minute % INTERVAL_INT == 0):
+        hour = now.hour
+        if (hour % INTERVAL_INT == 0):
             if notyet_traded:
                 long_amt = round(binance_ft.apply_filters(binance_sm.volume_momentum({"symbol" : SYMBOL, "interval" : INTERVAL}, window=40))-0.00005, 4)
                 if (long_amt > 0):
@@ -53,7 +52,7 @@ if __name__ == "__main__":
                 else:
                     print("SKIPPED", datetime.now().astimezone(timezone("Asia/Seoul")))
                 notyet_traded = False
-        elif ((minute % INTERVAL_INT == INTERVAL_INT-1) & (second > 50)):
+        elif ((hour % INTERVAL_INT == INTERVAL_INT-1)):
             if not notyet_traded:
                 if (sell_amt > 0):
                     timestamp = int(time.time() * 1000.0)

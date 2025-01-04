@@ -8,8 +8,9 @@ from trader import UpbitStrategyManager, UpbitOrderManager
 BASE = "DOGE"
 QUOTE = "KRW"
 SYMBOL = f"{QUOTE}-{BASE}"
-INTERVAL = 5
-UNIT = "minutes"
+INTERVAL = 24
+UNIT = "days"
+IS_MINUTES = 1 if (UNIT == "minutes") else 0
 ORDER_TYPE = "MARKET"
 
 if __name__ == "__main__":
@@ -25,11 +26,10 @@ if __name__ == "__main__":
 
     while True:
         now = datetime.now()
-        minute = now.minute
-        second = now.second
-        if (minute % INTERVAL == 0):
+        hour = now.hour
+        if (hour % INTERVAL == 0):
             if notyet_traded:
-                long_amt = Upbit_sm.volume_momentum({"market" : f"{QUOTE}-{BASE}"}, window=10)
+                long_amt = Upbit_sm.volume_momentum({"market" : f"{QUOTE}-{BASE}"}, window=10, interval=(IS_MINUTES * INTERVAL), unit="days")
                 if (long_amt > 0):
                     order_dict = {"market" : f"{QUOTE}-{BASE}", "side" : "bid", "ord_type" : "price", "price" : long_amt}
                     Upbit_om.retrieve_orders(order_dict)
@@ -48,10 +48,13 @@ if __name__ == "__main__":
                 else:
                     print("SKIPPED", datetime.now().astimezone(timezone("Asia/Seoul")))
                 notyet_traded = False
-        elif ((minute % INTERVAL == INTERVAL-1) & (second > 30)):
+        elif ((hour % INTERVAL == INTERVAL-1)):
             if not notyet_traded:
-                userdata = Upbit_sm.backtest_manager.get_userdata().json()
-                sell_amt = float([info["balance"] for info in userdata if (info["currency"] == f"{BASE}")][0])
+                try:
+                    userdata = Upbit_sm.backtest_manager.get_userdata().json()
+                    sell_amt = float([info["balance"] for info in userdata if (info["currency"] == f"{BASE}")][0])
+                except:
+                    sell_amt = 0
                 if (sell_amt > 0):
                     timestamp = int(time.time() * 1000.0)
                     order_dict = {"market" : f"{QUOTE}-{BASE}", "side" : "ask", "ord_type" : "market", "volume" : sell_amt}

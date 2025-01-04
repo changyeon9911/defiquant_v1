@@ -21,7 +21,7 @@ class UpbitStrategyManager(StrategyManager):
 #    def apply_filters(self, params_dict : dict):
 #        return self.backtest_manager.interface.exchange_info(params_dict)
 
-    def volume_momentum(self, params_dict : dict, window=10):
+    def volume_momentum(self, params_dict : dict, window=10, interval=5, unit="minutes"):
 
         def volume_momentum(candlestick_df : pd.DataFrame, window=10):
             investment_df = candlestick_df.copy()[["candle_date_time_utc", "opening_price", "trade_price", "candle_acc_trade_price"]]
@@ -31,7 +31,7 @@ class UpbitStrategyManager(StrategyManager):
             return investment_df
 
         self.backtest_manager.load_params(params_dict)
-        candlestick_df = self.backtest_manager.get_candlestick()    
+        candlestick_df = self.backtest_manager.get_candlestick(interval=5, unit="minutes")    
 
         final_long_amount = self.upto_balance(volume_momentum(candlestick_df, window=window).iloc[-1]["Long Ratio"])
         return final_long_amount
