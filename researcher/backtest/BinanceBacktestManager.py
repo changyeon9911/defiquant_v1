@@ -56,16 +56,19 @@ class BinanceBacktestManager(BacktestManager):
         return candlestick_df
     
     def backtest(self, starting_usdt, investment_df : pd.DataFrame, commission_rate=0.001):
+        investment_df["commission"] = 0
+        investment_df["marginal_pnl"] = 0
         investment_df["max_long_amt"] = 0
         investment_df["cumulative_pnl"] = 0
         investment_df.loc[0, "cumulative_pnl"] = starting_usdt
 
         for i in range(len(investment_df)-1):
-            investment_df.loc[i, "max_long_amt"] = (investment_df.loc[i, "cumulative_pnl"]/(1+commission_rate))/investment_df.loc[i, "Open price"]
-            investment_df.loc[i, "Long Amount"] = min(investment_df.loc[i, "Long Amount"], investment_df.loc[i, "max_long_amt"])
-            investment_df.loc[i, "marginal pnl"] = investment_df.loc[i, "Long Amount"] * (investment_df.loc[i, "Close price"] - investment_df.loc[i, "Open price"])
-            investment_df.loc[i+1, "cumulative_pnl"] = investment_df.loc[i, "cumulative_pnl"] + investment_df.loc[i, "marginal pnl"]
-        
+            investment_df.loc[i+1, "max_long_amt"] = investment_df.loc[i, "cumulative_pnl"]/investment_df.loc[i+1, "Open price"]
+            investment_df.loc[i+1, "Long Amount"] = min(investment_df.loc[i+1, "Long Amount"], investment_df.loc[i+1, "max_long_amt"])
+            investment_df.loc[i+1, "marginal_pnl"] = investment_df.loc[i+1, "Long Amount"] * (investment_df.loc[i+1, "Close price"] - investment_df.loc[i+1, "Open price"])
+            investment_df.loc[i+1, "commission"] = commission_rate * investment_df.loc[i+1, "Long Amount"] * (investment_df.loc[i+1, "Close price"] + investment_df.loc[i+1, "Open price"])
+            investment_df.loc[i+1, "cumulative_pnl"] = investment_df.loc[i, "cumulative_pnl"] + investment_df.loc[i+1, "marginal_pnl"] - investment_df.loc[i+1, "commission"]
+                
         return investment_df
     
     def visualize_pnl(self, pnl_df: pd.DataFrame, color1="blue", color2="orange", test=False):

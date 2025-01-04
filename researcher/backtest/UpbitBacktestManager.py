@@ -67,7 +67,7 @@ class UpbitBacktestManager(BacktestManager):
         for i in range(len(investment_df)-1):
             investment_df.loc[i+1, "Long Amount"] = investment_df.loc[i, "cumulative_pnl"] * investment_df.loc[i+1, "Long Ratio"]
             investment_df.loc[i+1, "marginal_pnl"] = investment_df.loc[i+1, "Long Amount"] * ((investment_df.loc[i+1, "trade_price"] - investment_df.loc[i+1, "opening_price"])/investment_df.loc[i+1, "opening_price"])
-            investment_df.loc[i+1, "commission"] = commission_rate * investment_df.loc[i+1, "Long Amount"]
+            investment_df.loc[i+1, "commission"] = commission_rate * investment_df.loc[i+1, "Long Amount"] * (1+(investment_df.loc[i+1, "trade_price"]/investment_df.loc[i+1, "opening_price"]))
             investment_df.loc[i+1, "cumulative_pnl"] = investment_df.loc[i, "cumulative_pnl"] + investment_df.loc[i+1, "marginal_pnl"] - investment_df.loc[i+1, "commission"]
         return investment_df
     
