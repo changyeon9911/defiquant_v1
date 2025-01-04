@@ -29,7 +29,7 @@ if __name__ == "__main__":
         second = now.second
         if (minute % INTERVAL == 0):
             if notyet_traded:
-                long_amt = 0 #Upbit_sm.volume_momentum({"market" : f"{QUOTE}-{BASE}"}, window=10)
+                long_amt = Upbit_sm.volume_momentum({"market" : f"{QUOTE}-{BASE}"}, window=10)
                 if (long_amt > 0):
                     order_dict = {"market" : f"{QUOTE}-{BASE}", "side" : "bid", "ord_type" : "price", "price" : long_amt}
                     Upbit_om.retrieve_orders(order_dict)

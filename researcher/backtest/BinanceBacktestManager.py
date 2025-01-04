@@ -55,7 +55,7 @@ class BinanceBacktestManager(BacktestManager):
 
         return candlestick_df
     
-    def backtest(self, starting_usdt, investment_df : pd.DataFrame, commission_rate=0.01):
+    def backtest(self, starting_usdt, investment_df : pd.DataFrame, commission_rate=0.001):
         investment_df["max_long_amt"] = 0
         investment_df["cumulative_pnl"] = 0
         investment_df.loc[0, "cumulative_pnl"] = starting_usdt
