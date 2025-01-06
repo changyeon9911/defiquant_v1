@@ -57,7 +57,7 @@ class UpbitBacktestManager(BacktestManager):
        
         return candlestick_df
     
-    def backtest(self, starting_krw, investment_df : pd.DataFrame, commission_rate=0.001):
+    def backtest(self, starting_krw, investment_df : pd.DataFrame, commission_rate=0.0005):
         investment_df["Long Amount"] = 0
         investment_df["marginal_pnl"] = 0
         investment_df["cumulative_pnl"] = 0
@@ -124,4 +124,12 @@ class UpbitBacktestManager(BacktestManager):
         plt.tight_layout()
         plt.show()
 
-            
+    def visualize_distributed_pnl(self, pnl_df_list: list, test=False):
+        if (len(pnl_df_list) > 1):
+            mean_df = pnl_df_list[0]
+            for pnl_df in pnl_df_list[1:]:
+                mean_df["cumulative_pnl"] = mean_df["cumulative_pnl"] + pnl_df["cumulative_pnl"]
+            self.visualize_pnl(mean_df, test=test)
+        else:
+            self.visualize_pnl(pnl_df_list[0], test=test)
+    

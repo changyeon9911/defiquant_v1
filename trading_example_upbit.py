@@ -1,5 +1,4 @@
 import time
-import json
 import warnings
 from pytz import timezone # type: ignore
 from datetime import datetime
@@ -25,7 +24,7 @@ if __name__ == "__main__":
     notyet_traded = True
 
     while True:
-        now = datetime.now()
+        now = datetime.now().astimezone(timezone("Asia/Seoul"))
         hour = now.hour
         if (hour % INTERVAL == 0):
             if notyet_traded:
